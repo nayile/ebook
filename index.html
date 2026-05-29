@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>大學數位典藏入口｜電子書資料搜尋</title>
+
+  <style>
+    :root {
+      --navy: #17315f;
+      --navy-dark: #102447;
+      --yellow: #f5d43d;
+      --yellow-dark: #e7c321;
+      --bg: #f3f4f7;
+      --panel: #ffffff;
+      --line: #d8dde6;
+      --text: #202733;
+      --muted: #6f7886;
+      --soft: #eef1f5;
+      --danger: #8a4b00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        "Noto Sans TC",
+        "Microsoft JhengHei",
+        "PingFang TC",
+        sans-serif;
+      line-height: 1.75;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    .site-header {
+      background: var(--navy);
+      color: #ffffff;
+      border-bottom: 6px solid var(--navy-dark);
+    }
+
+    .site-header-inner {
+      padding: 24px 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .site-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .site-subtitle {
+      margin-top: 6px;
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .container {
+      padding: 36px 42px 60px;
+      max-width: 1360px;
+      margin: 0 auto;
+    }
+
+    .search-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 30px;
+      margin-bottom: 28px;
+      max-width: 1280px;
+    }
+
+    .search-title {
+      margin: 0 0 10px;
+      font-size: 30px;
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    .search-desc {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 150px;
+      gap: 14px;
+    }
+
+    .search-input {
+      border: 2px solid var(--line);
+      background: #ffffff;
+      padding: 14px 16px;
+      font-size: 20px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(23, 49, 95, 0.12);
+    }
+
+    .yellow-button {
+      border: 2px solid var(--yellow);
+      background: var(--yellow);
+      color: var(--navy-dark);
+      padding: 12px 24px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .yellow-button:hover {
+      background: var(--yellow-dark);
+      border-color: var(--yellow-dark);
+    }
+
+    .outline-button {
+      border: 2px solid var(--navy);
+      background: #ffffff;
+      color: var(--navy);
+      padding: 12px 24px;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .outline-button:hover {
+      background: #eef3fb;
+    }
+
+    .message {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .message.warning {
+      color: var(--danger);
+    }
+
+    .result-count {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .record-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 34px 30px;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 34px;
+      max-width: 1280px;
+      min-height: 360px;
+    }
+
+    .thumbnail {
+      width: 220px;
+      height: 320px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.65), rgba(0,0,0,0.04)),
+        #e9ecf2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #697386;
+      font-size: 20px;
+      text-align: center;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.04);
+    }
+
+    .record-title {
+      margin: 4px 0 28px;
+      font-size: 30px;
+      color: var(--navy);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 12px 28px;
+      font-size: 22px;
+      margin-bottom: 24px;
+    }
+
+    .meta-label {
+      color: var(--muted);
+    }
+
+    .record-desc {
+      margin: 24px 0 22px;
+      font-size: 22px;
+      color: #2f3948;
+      max-width: 900px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 12px 0 28px;
+    }
+
+    .tag {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      padding: 7px 16px;
+      font-size: 18px;
+      color: #303947;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 820px) {
+      .site-header-inner {
+        display: block;
+        padding: 22px;
+      }
+
+      .header-links {
+        margin-top: 14px;
+        gap: 16px;
+        font-size: 14px;
+        flex-wrap: wrap;
+      }
+
+      .container {
+        padding: 24px 16px 44px;
+      }
+
+      .search-panel {
+        padding: 22px 18px;
+      }
+
+      .search-title {
+        font-size: 24px;
+      }
+
+      .search-row {
+        grid-template-columns: 1fr;
+      }
+
+      .record-card {
+        grid-template-columns: 1fr;
+        padding: 24px 18px;
+      }
+
+      .thumbnail {
+        width: 100%;
+        height: 180px;
+      }
+
+      .record-title {
+        font-size: 24px;
+      }
+
+      .meta-grid {
+        grid-template-columns: 92px 1fr;
+        font-size: 17px;
+        gap: 8px 16px;
+      }
+
+      .record-desc {
+        font-size: 17px;
+      }
+
+      .tag {
+        font-size: 15px;
+      }
+
+      .outline-button,
+      .yellow-button,
+      .search-input {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div>
+        <h1 class="site-title">大學數位典藏入口</h1>
+        <div class="site-subtitle">University Digital Archive Portal</div>
+      </div>
+
+      <nav class="header-links">
+        <span>搜尋</span>
+        <span>館藏分類</span>
+        <span>使用說明</span>
+        <span>English</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="search-panel">
+      <h2 class="search-title">電子書資料搜尋</h2>
+      <p class="search-desc">
+        請輸入書名、作者或館藏編號搜尋。
+      </p>
+
+      <form class="search-row" id="searchForm">
+        <input
+          class="search-input"
+          id="searchInput"
+          type="search"
+          autocomplete="off"
+          placeholder="輸入書名"
+          aria-label="搜尋關鍵字"
+        />
+        <button class="yellow-button" type="submit">搜尋</button>
+      </form>
+
+      <div class="message" id="initialMessage">
+        (書名可輸入關鍵字即可。)
+      </div>
+
+      <div class="message warning" id="noResultMessage" hidden>
+        未找到符合條件的資料。
+      </div>
+    </section>
+
+    <section id="resultsArea" hidden>
+      <h2 class="result-count">搜尋結果：1 件</h2>
+
+      <article class="record-card">
+        <div class="thumbnail">
+          書影<br />
+          Electronic Book
+        </div>
+
+        <div>
+          <h3 class="record-title">與狗兒的對話</h3>
+
+          <div class="meta-grid">
+            <div class="meta-label">作者</div>
+            <div>佐佐木稻雨</div>
+
+            <div class="meta-label">資料類型</div>
+            <div>圖書／電子書</div>
+
+            <div class="meta-label">部局</div>
+            <div>綜合圖書館・自然科學分館</div>
+
+            <div class="meta-label">相關年</div>
+            <div>2023</div>
+
+            <div class="meta-label">館藏編號</div>
+            <div>QL751.E45 2023</div>
+          </div>
+
+          <p class="record-desc">
+            以動物行為學為基礎，用容易理解的方式說明狗兒的行為，並引導飼主如何正確對狗兒傳達指令。
+          </p>
+
+          <div class="tag-row">
+            <span class="tag">動物行為學</span>
+            <span class="tag">犬類行為</span>
+          </div>
+
+          <div class="button-row">
+            <a class="yellow-button" href="dog-ebook.html#reader">閲覧</a>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+    const resultsArea = document.getElementById("resultsArea");
+    const initialMessage = document.getElementById("initialMessage");
+    const noResultMessage = document.getElementById("noResultMessage");
+
+    const searchableTerms = [
+      "與狗兒的對話",
+      "狗兒",
+      "佐佐木稻雨",
+      "ql751.e45 2023",
+      "ql751",
+      "犬類行為",
+      "動物行為學"
+    ];
+
+    function normalize(text) {
+      return text
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    function runSearch() {
+      const keyword = normalize(searchInput.value);
+
+      resultsArea.hidden = true;
+      noResultMessage.hidden = true;
+
+      if (!keyword) {
+        initialMessage.hidden = false;
+        return;
+      }
+
+      initialMessage.hidden = true;
+
+      const matched = searchableTerms.some(term => {
+        return normalize(term).includes(keyword) || keyword.includes(normalize(term));
+      });
+
+      if (matched) {
+        resultsArea.hidden = false;
+      } else {
+        noResultMessage.hidden = false;
+      }
+    }
+
+    searchForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      runSearch();
+    });
+
+    searchInput.addEventListener("input", function() {
+      if (searchInput.value.trim() === "") {
+        resultsArea.hidden = true;
+        noResultMessage.hidden = true;
+        initialMessage.hidden = false;
+      }
+    });
+
+    resultsArea.hidden = true;
+    noResultMessage.hidden = true;
+    initialMessage.hidden = false;
+  </script>
+</body>
+</html>

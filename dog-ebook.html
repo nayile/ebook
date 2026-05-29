@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>大學數位典藏入口｜與狗兒的對話</title>
+
+  <style>
+    :root {
+      --navy: #17315f;
+      --navy-dark: #102447;
+      --yellow: #f5d43d;
+      --yellow-dark: #e7c321;
+      --bg: #f3f4f7;
+      --panel: #ffffff;
+      --line: #d8dde6;
+      --text: #202733;
+      --muted: #6f7886;
+      --soft: #eef1f5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        "Noto Sans TC",
+        "Microsoft JhengHei",
+        "PingFang TC",
+        sans-serif;
+      line-height: 1.75;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .site-header {
+      background: var(--navy);
+      color: #ffffff;
+      border-bottom: 6px solid var(--navy-dark);
+    }
+
+    .site-header-inner {
+      padding: 24px 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .site-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .site-subtitle {
+      margin-top: 6px;
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .container {
+      padding: 36px 42px 60px;
+    }
+
+    .result-count {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .record-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 34px 30px;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 34px;
+      max-width: 1280px;
+      min-height: 360px;
+    }
+
+    .thumbnail {
+      width: 220px;
+      height: 320px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.65), rgba(0,0,0,0.04)),
+        #e9ecf2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #697386;
+      font-size: 20px;
+      text-align: center;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.04);
+    }
+
+    .record-title {
+      margin: 4px 0 28px;
+      font-size: 30px;
+      color: var(--navy);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 12px 28px;
+      font-size: 22px;
+      margin-bottom: 24px;
+    }
+
+    .meta-label {
+      color: var(--muted);
+    }
+
+    .record-desc {
+      margin: 24px 0 22px;
+      font-size: 22px;
+      color: #2f3948;
+      max-width: 900px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 12px 0 28px;
+    }
+
+    .tag {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      padding: 7px 16px;
+      font-size: 18px;
+      color: #303947;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .outline-button {
+      border: 2px solid var(--navy);
+      background: #ffffff;
+      color: var(--navy);
+      padding: 12px 24px;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .outline-button:hover {
+      background: #eef3fb;
+    }
+
+    .yellow-button {
+      border: 2px solid var(--yellow);
+      background: var(--yellow);
+      color: var(--navy-dark);
+      padding: 12px 24px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .yellow-button:hover {
+      background: var(--yellow-dark);
+      border-color: var(--yellow-dark);
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .reader-shell {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      max-width: 1180px;
+    }
+
+    .reader-head {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: #fbfcfe;
+    }
+
+    .reader-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .reader-status {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .reader-body {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 64px;
+      min-height: 640px;
+    }
+
+    .turn-button {
+      border: none;
+      border-right: 1px solid var(--line);
+      background: #f8fafc;
+      color: #7c8795;
+      font-size: 42px;
+      cursor: pointer;
+    }
+
+    .turn-button.next {
+      border-right: none;
+      border-left: 1px solid var(--line);
+    }
+
+    .turn-button:hover {
+      background: #eef3fb;
+      color: var(--navy);
+    }
+
+    .turn-button:disabled {
+      color: #c2c8d0;
+      cursor: not-allowed;
+    }
+
+    .ebook-page {
+      display: none;
+      padding: 48px 70px 40px;
+      background: #ffffff;
+    }
+
+    .ebook-page.active {
+      display: block;
+    }
+
+    .ebook-page h2 {
+      margin: 0 0 24px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .ebook-page h3 {
+      margin: 28px 0 12px;
+      font-size: 21px;
+      color: var(--navy);
+    }
+
+    .ebook-page p {
+      margin: 0 0 18px;
+      font-size: 17px;
+      text-align: justify;
+    }
+
+    .ebook-page ul,
+    .ebook-page ol {
+      margin: 0 0 20px 0;
+      padding-left: 1.6em;
+      font-size: 17px;
+    }
+
+    .ebook-page li {
+      margin-bottom: 12px;
+    }
+
+    .footnote {
+      margin-top: 30px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .reader-foot {
+      border-top: 1px solid var(--line);
+      padding: 12px 18px 16px;
+      background: #fbfcfe;
+    }
+
+    .progress-line {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+      gap: 12px;
+    }
+
+    .progress-track {
+      height: 6px;
+      background: #e5e9ef;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--navy);
+      transition: width 0.2s ease;
+    }
+
+    .back-row {
+      margin-top: 18px;
+    }
+
+    @media (max-width: 820px) {
+      .site-header-inner {
+        display: block;
+        padding: 22px;
+      }
+
+      .header-links {
+        margin-top: 14px;
+        gap: 16px;
+        font-size: 14px;
+        flex-wrap: wrap;
+      }
+
+      .container {
+        padding: 24px 16px 44px;
+      }
+
+      .record-card {
+        grid-template-columns: 1fr;
+        padding: 24px 18px;
+      }
+
+      .thumbnail {
+        width: 100%;
+        height: 180px;
+      }
+
+      .record-title {
+        font-size: 24px;
+      }
+
+      .meta-grid {
+        grid-template-columns: 92px 1fr;
+        font-size: 17px;
+        gap: 8px 16px;
+      }
+
+      .record-desc {
+        font-size: 17px;
+      }
+
+      .tag {
+        font-size: 15px;
+      }
+
+      .outline-button,
+      .yellow-button {
+        font-size: 17px;
+      }
+
+      .reader-head {
+        display: block;
+      }
+
+      .reader-status {
+        margin-top: 6px;
+      }
+
+      .reader-body {
+        grid-template-columns: 44px minmax(0, 1fr) 44px;
+      }
+
+      .ebook-page {
+        padding: 32px 24px;
+      }
+
+      .turn-button {
+        font-size: 30px;
+      }
+
+      .progress-line {
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div>
+        <h1 class="site-title">大學數位典藏入口</h1>
+        <div class="site-subtitle">University Digital Archive Portal</div>
+      </div>
+
+      <nav class="header-links">
+        <span>搜尋</span>
+        <span>館藏分類</span>
+        <span>使用說明</span>
+        <span>English</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section id="searchView" class="view active">
+      <h2 class="result-count">搜尋結果：1 件</h2>
+
+      <article class="record-card">
+        <div class="thumbnail">
+          書影<br />
+          Electronic Book
+        </div>
+
+        <div>
+          <h3 class="record-title">與狗兒的對話</h3>
+
+          <div class="meta-grid">
+            <div class="meta-label">作者</div>
+            <div>佐佐木稻雨</div>
+
+            <div class="meta-label">資料類型</div>
+            <div>圖書／電子書</div>
+
+            <div class="meta-label">部局</div>
+            <div>綜合圖書館・自然科學分館</div>
+
+            <div class="meta-label">相關年</div>
+            <div>2023</div>
+
+            <div class="meta-label">館藏編號</div>
+            <div>QL751.E45 2023</div>
+          </div>
+
+          <p class="record-desc">
+            以動物行為學為基礎，用容易理解的方式說明狗兒的行為，並引導飼主如何正確對狗兒傳達指令。
+          </p>
+
+          <div class="tag-row">
+            <span class="tag">動物行為學</span>
+            <span class="tag">犬類行為</span>
+          </div>
+
+          <div class="button-row">
+            <button class="yellow-button" onclick="showReader()">閲覧</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="readerView" class="view">
+      <section class="reader-shell">
+        <div class="reader-head">
+          <div>
+            <div class="reader-title">與狗兒的對話</div>
+            <div style="font-size: 13px; color: var(--muted);">
+              QL751.E45 2023｜電子書閲覧
+            </div>
+          </div>
+          <div class="reader-status" id="readerStatus">1 / 13｜第一章：領導</div>
+        </div>
+
+        <div class="reader-body">
+          <button class="turn-button" id="prevBtn" onclick="prevPage()" aria-label="上一頁">‹</button>
+
+          <div>
+            <article class="ebook-page active" data-title="第一章：領導">
+              <h2>第一章　領導</h2>
+
+              <p>
+                狗兒演化的開端，或許是人類捕捉了幼狼加以訓練繁殖，也或許是部分狼群發現跟隨人類的聚落更容易果腹與繁衍。從肉食性變成雜食性、得以理解人類的訊號、性格相對溫馴等等，狗兒與狼不同的種種特徵，都是被人類馴化的結果。
+              </p>
+
+              <p>
+                如今，狗兒已經是人類忠誠的朋友，但儘管友善親人是牠們天擇過後的基因，要在人類社會中生活，仍需要飼主充分的教導。
+              </p>
+
+              <p>
+                正確地教導狗兒、不過度放任，成為足以信任的領導者，是飼主的義務。
+              </p>
+
+              <p>
+                領導並非用責罰或壓力讓狗兒屈服，而是明確規則，讓狗兒能更自在地應對各種情況。生活在人類建構的環境中，卻不知道該遵守哪些規則才是正確的，對狗兒而言反而是一件無措而焦慮的事。
+              </p>
+
+              <p>
+                愛護狗兒，並非只是一昧地以人類的價值觀給予牠滿足。關鍵的心態，在於關心與留意狗兒的反應，真誠地與牠一同學習。
+              </p>
+
+              <p>
+                你已經準備好要當一位讓狗兒信賴的好主人了嗎？讓我們一步一步來吧！
+              </p>
+            </article>
+
+            <article class="ebook-page" data-title="第二章：安定訊號 1">
+              <h2>第二章　安定訊號</h2>
+
+              <p>
+                動物不會說話，狗兒不會說話。這便是訓練時最大的難關，狗兒並不會用語言告知飼主牠的需求與不適，飼主也無法用語言說明對狗兒行動的肯定與不滿。筆者經常在想，要是狗兒會說話、要是能跟狗兒溝通，我們是不是能成為更好的飼主呢？
+              </p>
+
+              <p>
+                不過，即使無法理解彼此的語言，狗兒依舊會從肢體動作和表情中，傳達牠的情緒，狗兒之間也會藉此溝通。這樣的肢體語言，我們稱為安定訊號。常見如下。
+              </p>
+
+              <ul>
+                <li>打呵欠：感到不安、緊張時藉此舒緩焦慮，多見於遇到不熟悉的人事物時，相當於人類的深呼吸。但不一定每次打呵欠都是因為不安，亦可能是單純想睡的生理反應。</li>
+                <li>撇頭、轉身：感受到威脅，藉由避開視線緩解情緒，並試圖中斷另牠不適的互動，亦可能是狗兒在試圖緩解自己的亢奮或困惑。</li>
+                <li>彎腰低身：前腳趴低、屁股翹高的特殊姿勢，表示友好、邀請對方一起玩耍，又稱「邀玩姿勢」。注意，如果狗兒此時的尾巴並非上揚，而是向下垂放，那反而代表要求對方冷靜。</li>
+              </ul>
+            </article>
+
+            <article class="ebook-page" data-title="第二章：安定訊號 2">
+              <h2>第二章　安定訊號</h2>
+
+              <ul>
+                <li>放慢動作：放慢動作或靜止不動，多見於大型犬隻，想表達自己沒有威脅之意。有時大型犬隻亦會主動趴下、降低自己的高度，以緩解對方的緊張。</li>
+                <li>威嚇：露齒、尾巴高舉、發出低吼，明確地表示拒絕與警告。如果是你的狗兒對他人做出威嚇，請注意不要過度誇張或激動地安撫，反而會令狗兒認為該事物極度危險，以至於飼主也感到害怕。</li>
+                <li>狩獵指示：抬起單腳、頭部與身體壓低朝向獵物，常見於狗兒專心嗅聞目標的時候。此習性來自於狼的圍獵習慣，當發現獵物時，狼群會呈現此姿勢等待領導者的判斷。此動作代表狗兒處於隨時可能前撲的狀態，散步或與其他狗兒互動中需特別留意。</li>
+              </ul>
+            </article>
+
+            <article class="ebook-page" data-title="第三章：正增強、負增強、懲罰 1">
+              <h2>第三章　正增強、負增強、懲罰</h2>
+
+              <p>
+                將我們希望寵物做到的行為拆解成步驟，並以懲罰或限制（負增強）使寵物避開偏離行為的選項，這樣的方法被稱為傳統訓練法。而以獎勵（正增強）強化寵物對正確行為的連結，這樣的方法則被稱為正向訓練法。
+              </p>
+
+              <p>
+                實際上，這兩種訓練方式並無好壞之分，更關鍵的，是哪一種對狗兒有效。因為狗兒的個性各有不同，甚至可說即使是同一隻狗兒，也不能一昧使用單一方法訓練。
+              </p>
+
+              <p>
+                因此，在這裡，筆者想介紹的是兩種訓練方式中皆適用的三種機制概念：正增強、負增強、懲罰。
+              </p>
+
+              <ul>
+                <li>正增強：當狗兒做出行動後，給予獎勵，狗兒便會為了獲得獎勵而學會的一項行為。</li>
+                <li>負增強：當狗兒做出行動後，消除讓牠不適的因素，狗兒便會為了避開不適而學會一項行為。</li>
+                <li>懲罰：當狗兒做出行動後，給予讓牠不適的因素，狗兒便會為了避開不適而放棄一項行為。</li>
+              </ul>
+            </article>
+
+            <article class="ebook-page" data-title="第三章：正增強、負增強、懲罰 2">
+              <h2>第三章　正增強、負增強、懲罰</h2>
+
+              <p>
+                以上三種機制中，狗兒對自身的行為並沒有好壞認知之分。亦即如果選錯了給予獎勵的時間，狗兒很有可能反而學會了不良行為。例如：吠叫後獲得飼料（正增強）、吠叫後飼主的關注（正增強）、咬人後陌生人停止不愉快的撫摸（負增強）、偷吃飼料遭到打罵因此對進食產生恐懼（懲罰）。
+              </p>
+
+              <p>
+                因此，並非一昧使用正向訓練法就能使狗兒乖順地聽話。仔細觀察狗兒的行動，判斷該給予何種反應，才是訓練狗兒時的關鍵。
+              </p>
+            </article>
+
+            <article class="ebook-page" data-title="第四章：獎勵、限制與懲罰 1">
+              <h2>第四章　獎勵、限制與懲罰</h2>
+
+              <h3>獎勵</h3>
+
+              <p>
+                在開始訓練之前，必須先找到對你的狗兒來說是獎勵的事物，若有多項選擇，甚至能將它們依照狗兒的喜好區分等級。例如：誇獎、撫摸、零食、玩具等等，以此向狗兒傳達你希望牠保持的行為。
+              </p>
+
+              <p>
+                值得注意的是，零食、玩具等物質起到的作用大多是延續當前的行為，而狗兒確定一件事情能做、可以做，則是判斷自飼主的態度。讓狗兒願意服從規則的主因，終究是牠對於飼主的信賴。因此給予獎勵時的語氣、態度與肢體動作等皆十分重要。
+              </p>
+
+              <p>
+                另外，如果用手指捏住飼料零食給狗兒時，會被狗兒的牙齒咬痛，這時可以選擇不鬆手，並發出感到疼痛的聲音，讓狗兒知道「這樣得不到獎勵，而且會令你難受」。待狗兒改用不會咬到手指的方式接過零食，再放鬆手指並給予聲調上的鼓勵。
+              </p>
+            </article>
+
+            <article class="ebook-page" data-title="第四章：獎勵、限制與懲罰 2">
+              <h2>第四章　獎勵、限制與懲罰</h2>
+
+              <h3>限制</h3>
+
+              <p>
+                限制、不適的因素，並不代表傷害狗兒的身體。舉例如項圈與牽繩的牽制、不喜歡的味道等等。因項圈的牽扯感受到不適，放棄原本前進的方向，很有可能是為了讓狗兒不要往危險的方向移動。有時，為了保護狗兒與周遭人的安全，掌握限制能力也是必要的。
+              </p>
+
+              <h3>懲罰</h3>
+
+              <p>
+                若要撇除體罰，在訓練中，若狗兒做出不如預期的舉動時，忽略或不給予反應是最好的選擇。大聲責罵有時反而會讓狗兒更興奮，引起反效果。
+              </p>
+
+              <p>
+                而體罰ーー痛覺，筆者必須承認，這是非常明確能令動物知道「不能這麼做」的因素，作為中斷或刪除一項行為確實有效。
+              </p>
+            </article>
+
+            <article class="ebook-page" data-title="第四章：獎勵、限制與懲罰 3">
+              <h2>第四章　獎勵、限制與懲罰</h2>
+
+              <p>
+                然而，只有體罰的狀況下，容易導致狗兒「知道不能做這件事」卻「不知道飼主要我做什麼」，有時，狗兒甚至會理解成「不能在飼主面前做這件事」，而在飼主離開視線範圍後壓力反彈。
+              </p>
+
+              <p>
+                因此，筆者建議只有在狗兒的行為會傷害到自身或他人、且有迫切性時，才考慮體罰，並留意建立相對的「正確行為」。
+              </p>
+
+              <p>
+                需要注意的是，以上幾種方法，都必須在狗兒行為發生之前或之後立刻進行，狗兒才能建立連結。能在事情發生過後，以語言明確點出時間點、事情內容，並給予反饋，是只有人類透過溝通才能做到的事，動物並不具備這樣的能力。
+              </p>
+            </article>
+
+            <article class="ebook-page" data-title="第五章：基礎訓練 1">
+              <h2>第五章　基礎訓練</h2>
+
+              <p>
+                以下幾項十分基礎的訓練，是與狗兒溝通的重要關鍵。身為飼主，必須透過這幾項規則清楚的指令，向狗兒傳達人類的意願。請務必反覆練習，但一次練習持續時間不宜太長，並且不定時、無規律，讓狗兒習慣你的領導而不是當成課表。
+              </p>
+
+              <p>
+                四項基礎訓練：SIT、DOWN、STAY、OK。兩項進階：OFF、HEEL。以上口令皆可用任何語言代替，關鍵在「固定內容」與「簡短清晰」。
+              </p>
+
+              <h3>１：SIT</h3>
+
+              <p>
+                「SIT」是許多指令的前置步驟，也是在遇到突發狀況時讓狗兒等候飼主判斷的最佳狀態。這也就是為何無論哪種訓練教學都一律會從坐下開始教起，可說是基礎中的基礎。
+              </p>
+
+              <p>訓練的方法是：</p>
+
+              <ol>
+                <li>當狗兒以四腳站立時，將一顆飼料或零食拿在手上。</li>
+                <li>放到狗狗鼻子前，保持不動，且不能鬆手讓牠吃到。</li>
+                <li>將飼料移高到狗兒的頭頂，讓狗兒逐漸抬頭，後肢便會順勢坐下。</li>
+                <li>狗兒坐下的瞬間喊出口令（SIT），並接著將飼料湊近狗兒的嘴巴給予。</li>
+                <li>當牠吃下時，記得給牠充分的稱讚。</li>
+              </ol>
+            </article>
+
+            <article class="ebook-page" data-title="第五章：基礎訓練 2">
+              <h2>第五章　基礎訓練</h2>
+
+              <h3>２：DOWN</h3>
+
+              <p>
+                坐下下一步就是趴下，能讓狗兒原地停留得更久、更穩定，適合用於需要狗兒長時間等待時。
+              </p>
+
+              <p>訓練的方法是：</p>
+
+              <ol>
+                <li>當狗兒處於坐下的狀態，或以「SIT」讓牠坐下之後，將一顆飼料或零食拿在手上。</li>
+                <li>把零食放到鼻前，接著慢慢移動到兩隻前腳前方，讓狗兒的吻部與重心自然降低。</li>
+                <li>狗兒降到穩定高度的瞬間喊出口令（DOWN），並接著將飼料湊近狗兒的嘴巴給予。</li>
+                <li>當牠吃下時，同樣記得給牠充分的稱讚。</li>
+              </ol>
+
+            </article>
+
+<article class="ebook-page compact-page" data-title="第五章：基礎訓練 3">
+  <h2>第五章　基礎訓練</h2>
+
+  <h3>３＆４：STAY→OK</h3>
+
+  <p>
+    「STAY」與「OK」相輔相成，是最基礎的服從指令，用以讓狗兒明確知道該冷靜時刻，以及忍耐結束的時刻。此訓練的目標是讓狗兒即使專注盯著獎勵，耳朵依然會留意聽從飼主的指示。
+  </p>
+
+  <p>訓練的方法是：</p>
+
+  <ol>
+    <li>當狗兒處於坐下的狀態，或以「SIT」讓牠坐下之後，將一顆飼料或零食放在掌心裡。</li>
+    <li>稍微拉開距離，攤開手掌展示獎勵，清楚且沉著地說出「STAY」。</li>
+    <li>如果狗兒移動或脫離坐下姿勢，則立刻把獎勵收起，再說一次「STAY」，注意語氣不可急躁。</li>
+    <li>當狗兒恢復到正確姿勢時，可以用平穩的語氣輕聲誇獎牠「GOOD」。</li>
+    <li>判斷有無成功做到「STAY」的關鍵是狗兒的姿態是否冷靜下來，不再躁動或移動。</li>
+    <li>當牠做到時，請以正常的速度讀出三秒，並在三秒後抬高音調給予「OK」的指令，讓牠吃到飼料並誇獎牠。</li>
+  </ol>
+
+  <p>
+    等到狗兒學會等待進食後，可以增加對不同目標的「STAY」，如散步、出門、過馬路等等。
+  </p>
+
+  <p>
+    對狗兒而言，「OK」是飼主的同意，也是一個令牠們開心的指令，飼主開心的語調也非常重要。
+  </p>
+</article>
+            <article class="ebook-page" data-title="第五章：基礎訓練 4">
+              <h2>第五章　基礎訓練</h2>
+
+              <h3>５：OFF</h3>
+
+              <p>
+                讓狗兒放開正在咬住的東西。此指令有兩種訓練方式，正向訓練略有難度，筆者建議採「交換」的方式讓狗兒學習。
+              </p>
+
+              <p>傳統訓練的方法是：</p>
+
+              <ol>
+                <li>當狗兒咬住東西時，以低沉的聲音和冷淡的態度告訴牠「OFF」，並直視牠的眼睛，保持不動。</li>
+                <li>當狗兒有退縮、移開視線時，再次堅定態度告訴牠「OFF」，直到狗兒鬆開嘴。</li>
+                <li>狗兒鬆開嘴時，立即給予誇獎、撫摸等獎勵。</li>
+              </ol>
+
+              <p>正向訓練的方法是：</p>
+
+              <ol>
+                <li>當狗兒咬住東西時，以低沉的聲音告訴牠「OFF」，並將一顆飼料或零食拿在手上。</li>
+                <li>此時若狗兒為了吃飼料而鬆開嘴，立刻將飼料湊近狗兒的嘴巴給予，並抬高音調充分地稱讚。關鍵在於讓狗兒發現「鬆開嘴就有獎勵」，因此時機點非常重要。</li>
+              </ol>
+
+              <p>
+                ※ 無論使用哪一個訓練方式，都切勿拉扯狗兒咬住的物體，這會讓牠以為你在跟牠玩耍。
+              </p>
+            </article>
+
+            <article class="ebook-page" data-title="第五章：基礎訓練 5">
+              <h2>第五章　基礎訓練</h2>
+
+              <h3>６：HEEL</h3>
+
+              <p>
+                隨行訓練的目的在於讓狗兒跟隨於飼主身旁，不拉扯牽繩或奔跑，是難度較高、但對訓練狗兒穩定度十分有效的訓練。
+              </p>
+
+              <p>訓練的方法是：</p>
+
+              <ol>
+                <li>站定後，指向身旁的地面，對狗兒發出「HEEL」的指令。</li>
+                <li>當狗兒接近後，以用「SIT」指令的訣竅引導狗兒在該位置坐下，並立刻給予獎勵。</li>
+                <li>向前走兩至三步，同樣指向身旁的地面，再度對狗兒發出「HEEL」的指令，重複以上流程。</li>
+              </ol>
+            </article>
+
+            <article class="ebook-page" data-title="結語">
+              <h2>結語</h2>
+
+              <p>
+                除非是自出生就開始養育，否則我們無法確定狗兒過去已經習得了哪些行為。即便原本照顧牠的寵物業者、訓練師、志工等等，或許能說出牠已習得的指令，依然會有許多行為是需要相處過後才會發現的。因此在與新來的狗兒接觸時，一定要觀察牠的各種反應，了解牠的個性與已經建立的行為，才能更有助於訓練。
+              </p>
+
+              <p>
+                當然，即便是經驗豐富的訓犬師，也很有可能在不同狗兒的行為上誤判。所以，即便偶有失誤，也不必氣餒。狗兒與我們相同，都是獨立的個體。當你在觀察牠時，牠也會認真觀察你。
+              </p>
+
+              <p>
+                只要願意用心，一定能從那雙專注的眼睛、毛絨絨的耳朵與尾巴裡，聽見狗兒心裡的聲音哦！
+              </p>
+            </article>
+          </div>
+
+          <button class="turn-button next" id="nextBtn" onclick="nextPage()" aria-label="下一頁">›</button>
+        </div>
+
+        <div class="reader-foot">
+          <div class="progress-line">
+            <span id="progressText">閱讀進度 8%</span>
+            <span>左右方向鍵可翻頁</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="back-row">
+        <button class="outline-button" onclick="showSearch()">回到搜尋結果</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const views = {
+      search: document.getElementById("searchView"),
+      reader: document.getElementById("readerView")
+    };
+
+    function switchView(viewName) {
+      Object.values(views).forEach(function(view) {
+        view.classList.remove("active");
+      });
+
+      views[viewName].classList.add("active");
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    function showSearch() {
+      switchView("search");
+    }
+
+    function showReader() {
+      switchView("reader");
+      updateReader();
+    }
+
+    const pages = document.querySelectorAll(".ebook-page");
+    const readerStatus = document.getElementById("readerStatus");
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    let currentPage = 0;
+
+    function showPage(index) {
+      if (index < 0 || index >= pages.length) return;
+
+      pages[currentPage].classList.remove("active");
+      currentPage = index;
+      pages[currentPage].classList.add("active");
+
+      updateReader();
+    }
+
+    function nextPage() {
+      showPage(currentPage + 1);
+    }
+
+    function prevPage() {
+      showPage(currentPage - 1);
+    }
+
+    function updateReader() {
+      const total = pages.length;
+      const now = currentPage + 1;
+      const title = pages[currentPage].dataset.title;
+      const progress = Math.round((now / total) * 100);
+
+      readerStatus.textContent = `${now} / ${total}｜${title}`;
+      progressText.textContent = `閱讀進度 ${progress}%`;
+      progressBar.style.width = `${progress}%`;
+
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = currentPage === total - 1;
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (!views.reader.classList.contains("active")) return;
+
+      if (event.key === "ArrowRight") {
+        nextPage();
+      }
+
+      if (event.key === "ArrowLeft") {
+        prevPage();
+      }
+    });
+
+    if (window.location.hash === "#reader") {
+  showReader();
+} else {
+  updateReader();
+}
+  </script>
+</body>
+</html>
